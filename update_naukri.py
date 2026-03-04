@@ -54,7 +54,6 @@ def update_naukri(email: str, password: str):
     new_headline = f"{BASE_HEADLINE} {get_todays_suffix()}"
     log.info(f"Target headline: {new_headline}")
 
-    with sync_playwright() as p:
     # Targeted User Agent
     user_agent = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
