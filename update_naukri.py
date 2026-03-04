@@ -107,7 +107,22 @@ def update_naukri(email: str, password: str):
             Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
             Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3,4,5]});
             Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
+            Object.defineProperty(navigator, 'hardwareConcurrency', {get: () => 8});
+            Object.defineProperty(navigator, 'deviceMemory', {get: () => 8});
             window.chrome = { runtime: {} };
+            
+            // Screen & Window size spoofing
+            Object.defineProperty(window.screen, 'width', {get: () => 1920});
+            Object.defineProperty(window.screen, 'height', {get: () => 1080});
+            Object.defineProperty(window, 'outerWidth', {get: () => 1920});
+            Object.defineProperty(window, 'outerHeight', {get: () => 1080});
+            
+            // Delete ChromeDriver/Puppeteer variables
+            for (let prop in window) {
+                if (prop.startsWith('cdc_')) {
+                    delete window[prop];
+                }
+            }
         """)
 
         try:
