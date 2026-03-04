@@ -22,6 +22,15 @@ jobs:
           python-version: "3.11"
           cache: 'pip' # Speeds up execution by caching python dependencies
 
+      - name: Restore Session State
+        id: session-cache
+        uses: actions/cache@v4
+        with:
+          path: naukri_session.json
+          key: naukri-session-${{ github.run_id }}
+          restore-keys: |
+            naukri-session-
+
       - name: Cache Playwright Browsers
         id: playwright-cache
         uses: actions/cache@v4
@@ -31,20 +40,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install playwright playwright-stealth
+          pip install -r requirements.txt
           if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
             playwright install chromium
             playwright install-deps chromium
           fi
-
-      - name: Restore Session State
-        id: session-cache
-        uses: actions/cache@v4
-        with:
-          path: naukri_session.json
-          key: naukri-session-${{ github.run_id }}
-          restore-keys: |
-            naukri-session-
 
       - name: Random Sleep (Cron Offset)
         if: github.event_name == 'schedule'
@@ -66,14 +66,6 @@ jobs:
           path: naukri_session.json
           key: naukri-session-${{ github.run_id }}
 
-      - name: Upload screenshots (for debugging)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots-${{ github.run_id }}
-          path: "*.png"
-          retention-days: 7
-
       - name: Commit log
         if: always()
         run: |
@@ -84,3 +76,11 @@ jobs:
           git push || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload screenshots (for debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_id }}
+          path: "*.png"
+          retention-days: 7
