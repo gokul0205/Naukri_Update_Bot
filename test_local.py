@@ -67,9 +67,24 @@ def run(email: str, password: str, headless: bool = False):
             "--single-process",
         ] if headless else []
 
+        # Optional proxy support — set PROXY_SERVER / PROXY_USERNAME / PROXY_PASSWORD
+        # env vars (via GitHub Secrets) to route all traffic through the proxy.
+        proxy_config = None
+        proxy_server = os.environ.get("PROXY_SERVER", "").strip()
+        if proxy_server:
+            proxy_config = {
+                "server": proxy_server,
+                "username": os.environ.get("PROXY_USERNAME", "").strip(),
+                "password": os.environ.get("PROXY_PASSWORD", "").strip(),
+            }
+            log.info(f"  Using proxy: {proxy_server}")
+        else:
+            log.info("  No proxy configured (direct connection)")
+
         browser = p.chromium.launch(
             headless=headless,
             slow_mo=100 if not headless else 0,
+            proxy=proxy_config,
             args=[
                 "--no-sandbox",
                 "--disable-blink-features=AutomationControlled",

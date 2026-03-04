@@ -59,9 +59,11 @@ jobs:
         env:
           NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
           NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
-          # Used by test_local.py to prefix all screenshot filenames — makes each run's
-          # screenshots distinct and easy to identify in the Actions artifacts tab
           RUN_TIMESTAMP: ${{ github.run_number }}_${{ github.run_attempt }}
+          # Proxy credentials — store in GitHub Secrets to bypass Akamai IP block
+          PROXY_SERVER:   ${{ secrets.PROXY_SERVER }}
+          PROXY_USERNAME: ${{ secrets.PROXY_USERNAME }}
+          PROXY_PASSWORD: ${{ secrets.PROXY_PASSWORD }}
         run: python update_naukri.py
 
       - name: Save Session State
