@@ -14,7 +14,6 @@ import random
 import logging
 from datetime import datetime
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
-from playwright_stealth import stealth_sync
 
 # Setup logging
 logging.basicConfig(
@@ -102,8 +101,14 @@ def update_naukri(email: str, password: str):
         
         context = browser.new_context(**context_args)
         page = context.new_page()
-        stealth_sync(page)
-        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        
+        # Apply Pattern C manual stealth
+        page.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+            Object.defineProperty(navigator, 'plugins', {get: () => [1,2,3,4,5]});
+            Object.defineProperty(navigator, 'languages', {get: () => ['en-US', 'en']});
+            window.chrome = { runtime: {} };
+        """)
 
         try:
             # Step 1: Visit homepage to build trust and check session
