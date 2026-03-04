@@ -6,7 +6,7 @@ on:
     - cron: "30 3 * * *"
 
   # Run manually from GitHub UI anytime
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   update-profile:
