@@ -15,6 +15,8 @@ import random
 import logging
 from datetime import datetime
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
+from playwright_stealth import stealth_sync
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -90,6 +92,7 @@ def update_naukri(email: str, password: str):
         
         # Add a custom script to remove the 'webdriver' navigator property
         page = context.new_page()
+        stealth_sync(page)  # Apply playwright-stealth evasion
         page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         try:
@@ -105,9 +108,13 @@ def update_naukri(email: str, password: str):
 
             # ── Step 2: Fill credentials ──────────────────────────────────
             log.info("Filling login credentials…")
-            page.fill("input[placeholder='Enter your active Email ID / Username']", email)
+            
+            # Robust selectors for username/email
+            page.locator("input[id='usernameField'], input[placeholder*='Email ID'], input[type='text']").first.fill(email)
             time.sleep(random.uniform(0.5, 1.5))
-            page.fill("input[placeholder='Enter your password']", password)
+            
+            # Robust selectors for password
+            page.locator("input[id='passwordField'], input[type='password']").first.fill(password)
             time.sleep(random.uniform(0.5, 1.5))
 
             # Click login button
