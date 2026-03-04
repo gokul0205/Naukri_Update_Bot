@@ -59,6 +59,9 @@ jobs:
         env:
           NAUKRI_EMAIL: ${{ secrets.NAUKRI_EMAIL }}
           NAUKRI_PASSWORD: ${{ secrets.NAUKRI_PASSWORD }}
+          # Used by test_local.py to prefix all screenshot filenames — makes each run's
+          # screenshots distinct and easy to identify in the Actions artifacts tab
+          RUN_TIMESTAMP: ${{ github.run_number }}_${{ github.run_attempt }}
         run: python update_naukri.py
 
       - name: Save Session State
@@ -79,10 +82,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload screenshots (for debugging)
+      - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots-${{ github.run_id }}
+          # Each run gets its own artifact named "run-<number>-<attempt>-screenshots"
+          # so success and failure screenshots are NEVER mixed across runs
+          name: run-${{ github.run_number }}-attempt-${{ github.run_attempt }}-screenshots
           path: "*.png"
-          retention-days: 7
+          retention-days: 14
+          if-no-files-found: ignore

@@ -15,6 +15,7 @@ Install deps first:
 """
 
 import argparse
+import os
 import random
 import time
 import logging
@@ -25,6 +26,9 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 log = logging.getLogger(__name__)
+
+# Unique prefix for this run's screenshots — set by CI or generated locally
+RUN_TS = os.environ.get("RUN_TIMESTAMP", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
 # ── Rotating headlines ────────────────────────────────────────────────────────
 BASE_HEADLINE = "Data Engineer | Python | SQL | Spark | Cloud"
@@ -141,7 +145,7 @@ def run(email: str, password: str, headless: bool = False):
                     continue
 
             if not email_el:
-                page.screenshot(path="debug_no_email_field.png")
+                page.screenshot(path=f"{RUN_TS}_debug_no_email.png")
                 log.error("  ✗ Email field NOT found — screenshot saved as debug_no_email_field.png")
                 log.info(f"  Page HTML:\n{page.content()[:3000]}")
                 raise RuntimeError("Could not find email input. Check debug_no_email_field.png")
@@ -174,7 +178,7 @@ def run(email: str, password: str, headless: bool = False):
                     continue
 
             if not pass_el:
-                page.screenshot(path="debug_no_pass_field.png")
+                page.screenshot(path=f"{RUN_TS}_debug_no_pass.png")
                 raise RuntimeError("Could not find password input.")
 
             pass_el.click()
@@ -224,7 +228,7 @@ def run(email: str, password: str, headless: bool = False):
                 time.sleep(3)
                 if "/nlogin/login" in page.url:
                     log.error("  ✗ Login failed — redirected back to login page. Check debug_login_failed.png")
-                    page.screenshot(path="debug_login_failed.png")
+                    page.screenshot(path=f"{RUN_TS}_debug_login_failed.png")
                     raise RuntimeError("Login failed. Check credentials and debug_login_failed.png")
                 else:
                     log.info(f"  ✓ Login verified via profile page access. URL: {page.url}")
@@ -272,7 +276,7 @@ def run(email: str, password: str, headless: bool = False):
 
             if not clicked_edit:
                 log.error("  ✗ Could not click the headline edit icon.")
-                page.screenshot(path="debug_no_edit_click.png")
+                page.screenshot(path=f"{RUN_TS}_debug_no_edit_click.png")
                 raise RuntimeError("Failed to click resume headline edit button. See debug_no_edit_click.png")
 
             # Wait up to 5 seconds for the input/textarea to appear after clicking edit
@@ -298,7 +302,7 @@ def run(email: str, password: str, headless: bool = False):
 
             if not headline_el:
                 log.error("  ✗ Headline input NOT found after clicking edit.")
-                page.screenshot(path="debug_no_headline_input.png")
+                page.screenshot(path=f"{RUN_TS}_debug_no_headline_input.png")
                 log.info(f"  Page HTML (first 3000 chars):\n{page.content()[:3000]}")
                 raise RuntimeError("Headline input field not found after clicking edit.")
 
@@ -351,16 +355,16 @@ def run(email: str, password: str, headless: bool = False):
                             log.warning(f"    - button text: {btn.inner_text()!r}")
                     except Exception:
                         pass
-                page.screenshot(path="debug_no_save_button.png")
+                page.screenshot(path=f"{RUN_TS}_debug_no_save_button.png")
 
             time.sleep(random.uniform(2, 3))
-            page.screenshot(path="success_screenshot.png")
+            page.screenshot(path=f"{RUN_TS}_success.png")
             log.info("✅ SUCCESS! Headline updated. Screenshot saved.")
 
         except Exception as e:
             log.error(f"❌ Error: {e}")
             try:
-                page.screenshot(path="error_screenshot.png")
+                page.screenshot(path=f"{RUN_TS}_error.png")
                 log.info("Screenshot saved as error_screenshot.png")
             except Exception:
                 pass
