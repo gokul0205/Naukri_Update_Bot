@@ -31,19 +31,19 @@ log = logging.getLogger(__name__)
 RUN_TS = os.environ.get("RUN_TIMESTAMP", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
 # ── Rotating headlines ────────────────────────────────────────────────────────
-BASE_HEADLINE = "Data Engineer | Python | SQL | Spark | Cloud"
+BASE_HEADLINE = "Data Engineer 4+ Yrs | Databricks | PySpark | Airflow | Optum"
 
 SUFFIXES = [
-    "| Open to Work",
-    "| AWS | GCP",
-    "| ETL | Data Pipelines",
-    "| Actively Looking",
-    "| 4+ Yrs Exp",
-    "| Spark | Kafka",
-    "| Azure | Databricks",
-    "| Real-time & Batch",
+    "| Open to Work | Hyderabad",
+    "| Teradata to Databricks Migration",
+    "| PySpark | Spark SQL",
+    "| Cloud Migration | Actively Looking",
+    "| Healthcare Data | ETL | ELT",
+    "| Airflow | IBM DataStage | Python",
+    "| Legacy to Cloud Migration",
+    "| Data Pipelines",
     "| Hiring Ready",
-    "| Data Platform",
+    "| Teradata | Spark SQL",
 ]
 
 def get_todays_suffix() -> str:
