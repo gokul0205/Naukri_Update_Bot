@@ -55,25 +55,54 @@ def update_naukri(email: str, password: str):
     log.info(f"Target headline: {new_headline}")
 
     with sync_playwright() as p:
+    # Targeted User Agent
+    user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/133.0.0.0 Safari/537.36"
+    )
+
+    with sync_playwright() as p:
+        # Launch with automation-evasion args
         browser = p.chromium.launch(
             headless=True,
-            args=["--no-sandbox", "--disable-dev-shm-usage"],
+            args=[
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-blink-features=AutomationControlled",
+                "--use-gl=desktop",
+                "--no-default-browser-check",
+            ],
         )
+
+        # Create context with realistic headers and footprint
         context = browser.new_context(
-            user_agent=(
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/122.0.0.0 Safari/537.36"
-            ),
-            viewport={"width": 1280, "height": 800},
+            user_agent=user_agent,
+            viewport={"width": 1920, "height": 1080},
+            extra_http_headers={
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Referer": "https://www.google.com/",
+            },
+            device_scale_factor=1,
+            is_mobile=False,
+            has_touch=False,
         )
+        
+        # Add a custom script to remove the 'webdriver' navigator property
         page = context.new_page()
+        page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
         try:
+            # ── Step 0: Warm up with Homepage (Looks more organic) ────────
+            log.info("Visiting Naukri homepage for cookies/trust…")
+            page.goto("https://www.naukri.com/", timeout=45000, wait_until="domcontentloaded")
+            time.sleep(random.uniform(3, 6))
+
             # ── Step 1: Go to Naukri login ────────────────────────────────
             log.info("Navigating to Naukri login page…")
             page.goto("https://www.naukri.com/nlogin/login", timeout=30000)
-            time.sleep(random.uniform(2, 4))
+            time.sleep(random.uniform(4, 7))
 
             # ── Step 2: Fill credentials ──────────────────────────────────
             log.info("Filling login credentials…")
