@@ -55,14 +55,22 @@ def run(email: str, password: str, headless: bool = False):
     log.info(f"Target headline: {headline}")
 
     with sync_playwright() as p:
+        # Extra args for headless Linux (GitHub Actions)
+        headless_extra = [
+            "--disable-dev-shm-usage",
+            "--disable-setuid-sandbox",
+            "--disable-gpu",
+            "--single-process",
+        ] if headless else []
+
         browser = p.chromium.launch(
             headless=headless,
-            slow_mo=100 if not headless else 0,   # slows actions so you can watch
+            slow_mo=100 if not headless else 0,
             args=[
                 "--no-sandbox",
                 "--disable-blink-features=AutomationControlled",
                 "--start-maximized",
-            ],
+            ] + headless_extra,
         )
 
         context = browser.new_context(
@@ -210,14 +218,17 @@ def run(email: str, password: str, headless: bool = False):
                 pass
 
             if not login_confirmed:
-                # Fallback: wait another 5s and re-check URL
-                time.sleep(5)
+                # Fallback: navigate directly to profile and check if we get in
+                log.info("  DOM element not found. Trying direct profile navigation to verify login...")
+                page.goto("https://www.naukri.com/mnjuser/profile", wait_until="domcontentloaded", timeout=30000)
+                time.sleep(3)
                 if "/nlogin/login" in page.url:
-                    log.error("  ✗ Login failed — still on login page after waiting. Check debug_login_failed.png")
+                    log.error("  ✗ Login failed — redirected back to login page. Check debug_login_failed.png")
                     page.screenshot(path="debug_login_failed.png")
                     raise RuntimeError("Login failed. Check credentials and debug_login_failed.png")
                 else:
-                    log.info(f"  ✓ Login redirect detected. URL: {page.url}")
+                    log.info(f"  ✓ Login verified via profile page access. URL: {page.url}")
+                    login_confirmed = True
 
 
             # ── Step 6: Update headline ───────────────────────────────────

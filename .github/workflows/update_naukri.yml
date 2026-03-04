@@ -11,6 +11,8 @@ on:
 jobs:
   update-profile:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit update.log back to the repo
 
     steps:
       - name: Checkout repo
