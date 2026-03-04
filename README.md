@@ -1,4 +1,4 @@
-# Naukri Daily Profile Updater 
+# Naukri Daily Profile Updater  
 
 Automatically updates your Naukri resume headline daily via GitHub Actions —
 keeping your profile "recently active" and boosting recruiter visibility.
