@@ -10,7 +10,7 @@ on:
 
 jobs:
   update-profile:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, ARM64, android]
     permissions:
       contents: write   # needed to commit update.log back to the repo
 
@@ -45,7 +45,6 @@ jobs:
           pip install -r requirements.txt
           if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then
             playwright install chromium
-            playwright install-deps chromium
           fi
 
       - name: Random Sleep (Cron Offset)
