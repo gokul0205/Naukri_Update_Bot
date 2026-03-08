@@ -31,6 +31,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium
 
+      - name: Install dependencies
+        run: ~/pwenv/bin/python -m pip install -r requirements.txt
+
+      - name: Install Chromium if needed
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: ~/pwenv/bin/python -m playwright install chromium
+
       - name: Random Sleep (Cron Offset)
         if: github.event_name == 'schedule'
         run: DELAY=$((RANDOM % 1800)) && echo "Sleeping for $DELAY seconds to randomize start time..." && sleep $DELAY
@@ -43,7 +50,7 @@ jobs:
           PROXY_SERVER: ${{ secrets.PROXY_SERVER }}
           PROXY_USERNAME: ${{ secrets.PROXY_USERNAME }}
           PROXY_PASSWORD: ${{ secrets.PROXY_PASSWORD }}
-        run: python3 update_naukri.py
+        run: ~/pwenv/bin/python update_naukri.py
 
       - name: Save Session State
         if: always()
