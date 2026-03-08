@@ -31,9 +31,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-chromium
 
-      - name: Install dependencies
-        run: python3 -m pip install -r requirements.txt && if [ "${{ steps.playwright-cache.outputs.cache-hit }}" != "true" ]; then python3 -m playwright install chromium; fi
-
       - name: Random Sleep (Cron Offset)
         if: github.event_name == 'schedule'
         run: DELAY=$((RANDOM % 1800)) && echo "Sleeping for $DELAY seconds to randomize start time..." && sleep $DELAY
